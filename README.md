@@ -1,6 +1,11 @@
 ## Modified Custom Optimizer (RMSProp variant)
 
-This model is a fork of the custom 2nd‑order optimizer from [relu‑based‑2ndOrder‑convergence](https://github.com/YunInSung/relu-based-2ndOrder-convergence), with the following changes:
+This repository builds on the original MLP implementation from [relu‑based‑2ndOrder‑convergence](https://github.com/YunInSung/relu-based-2ndOrder-convergence) in two ways:
+
+1. **MLP**: directly forked and patched the original code to incorporate the changes below.  
+2. **CNN**: provided a new `tf.keras.Model` subclass (`MyModel`) that embeds the same optimizer logic for convolutional architectures.
+
+All changes applied uniformly to both variants:
 
 - **Removed Hessian‑based dynamic learning rate computed from batch loss** now using a fixed learning rate 
 - **Applied standard RMSProp gradient scaling**   
