@@ -12,6 +12,6 @@ All changes applied uniformly to both variants:
 - Hyperparameters adjusted to:
   - `diff = 0.3`
   - `square = 5`
-  - **Learning rate** fixed in the range **7.51e‑5 – 1e‑4**
+  - **Learning rate** fixed in the range **7.5e‑5 – 1e‑4**
 - **Performance**: Even on a simple MLP architecture, this configuration consistently outperforms the original optimizer across training loss and convergence speed.
 
