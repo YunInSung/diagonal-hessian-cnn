@@ -15,7 +15,7 @@ All changes applied uniformly to both variants:
   - **Learning rate** fixed in the range **7.5e‑5 – 1e‑4**
 - **Performance**: Even on a simple MLP architecture, this configuration consistently outperforms the original optimizer across training loss and convergence speed.
 
-## 2. CNN variant (`MyModel`)
+## CNN variant (`MyModel`)
 
 ```text
 diagonal-hessian-cnn/
