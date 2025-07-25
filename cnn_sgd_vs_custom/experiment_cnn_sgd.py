@@ -13,7 +13,7 @@ for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
 # ----------------- 하이퍼파라미터 -----------------
-SEEDS           = list(range(10))   # 20회 반복
+SEEDS           = list(range(20))   # 20회 반복
 EPOCHS          = 25
 BATCH_SIZE      = 64
 DROPOUT_RATE    = 0.2

@@ -20,15 +20,15 @@ All changes applied uniformly to both variants:
 ```text
 diagonal-hessian-cnn/
 ├── cnn_adam_vs_custom/
-│   ├── experiment_cnn_adam.py      ← Experiment: Adam vs Custom
-│   └── myModel_2opt.py             ← Custom second‑order RMSProp model
+│   ├── experiment_cnn_adam.py      ← Experiment: Adam vs Custom (20 runs with different seeds)
+│   └── myModel_2opt.py             ← Custom second-order RMSProp model
 ├── cnn_sgd_vs_custom/
-│   ├── experiment_cnn_sgd.py       ← Experiment: SGD vs Custom
-│   └── myModel_2opt.py             ← (same logic, different hyper‑parameters)
-├── MLP_custom_2ndOrder_opt/
+│   ├── experiment_cnn_sgd.py       ← Experiment: SGD vs Custom (20 runs with different seeds)
+│   └── myModel_2opt.py             ← (same logic, different hyper-parameters)
+├── MLP_custom_2ndOrder_opt/        ← MLP variant (for reference)
 │   ├── DNN_ADAM.py
 │   └── experiment_runner.py
-└── optimizer_benchmark_results/    ← Logs & plots
+└── optimizer_benchmark_results/    ← Logs & plots aggregated over 20 runs with distinct random seeds per experiment
 ```
 
 ### Quick Start
@@ -57,5 +57,3 @@ The two `myModel_2opt.py` files are identical apart from their default hyper‑p
 
 > **Tip**
 > Diagonal‑Hessian extraction can be memory‑hungry. If you run into GPU limits, reduce the batch size or enable `jit_compile=True` for XLA acceleration.
-
-
