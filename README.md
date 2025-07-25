@@ -75,7 +75,11 @@ Below table summarizes the mean performance of the Custom optimizer vs. Adam on 
 |               | val\_acc    | 0.7819 ± 0.0274  | 0.8096 ± 0.0099    | +0.0277                 | +3.54%   | 4.311  | 0.00038 \*\* |
 |               | val\_loss   | 0.6624 ± 0.0903  | 0.5920 ± 0.0368    | −0.0704                 | −10.63%  | −3.060 | 0.00644 \*   |
 |               | train\_time | 109.46 ± 2.54 s  | 148.28 ± 2.04 s    | +38.82 s                | +35.47%  | 50.689 | \~0 \*\*     |
-| **CIFAR-100** | f1          | 0.4212 ± 0.0710  | 0.5049 ± 0.0106    | +0.0837                 | +19.87%  | 5.225  | 0.00005 \*\* |
+| **CIFAR-100** | val\_loss   | 2.2495 ± 0.4873  | 1.8426 ± 0.0535    | −0.4069                 | −18.10%  | −3.668 | 0.00164 \*\* |
+|               | val\_acc    | 0.4256 ± 0.0725  | 0.5100 ± 0.0097    | +0.0844                 | +19.83%  | 5.104  | 0.00006 \*\* |
+|               | f1          | 0.4212 ± 0.0710  | 0.5049 ± 0.0106    | +0.0837                 | +19.87%  | 5.225  | 0.00005 \*\* |
+|               | train\_time | 109.72 ± 2.30 s  | 147.97 ± 2.00 s    | +38.25 s                | +34.86%  | 55.603 | \~0 \*\*     |
+
 
 * **Significance levels**: p < 0.05 (\*), p < 0.001 (\*\*).
 * The Custom optimizer achieves statistically significant improvements over Adam on both datasets, but training time increased by \~35.5% on CIFAR-10, with similar overhead on CIFAR-100.
@@ -97,4 +101,3 @@ Below table summarizes the mean performance of **SGD+Momentum** vs **Custom** op
 
 * **Significance levels**: p < 0.05 (\*), p < 0.001 (\*\*).
 * The Custom optimizer shows statistically significant improvements across all metrics on CIFAR-100 and clear gains on CIFAR-10, with a training time overhead of \~36–37%.
-
