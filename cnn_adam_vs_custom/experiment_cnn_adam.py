@@ -6,6 +6,17 @@ from scipy.stats import ttest_rel
 import pandas as pd
 import time
 import gc
+import argparse
+datasets = ['cifar10', 'cifar100']
+parser = argparse.ArgumentParser(description="Optimizer 비교 실험 스크립트")
+parser.add_argument(
+    '--datasets',
+    nargs='+',
+    default=['cifar10', 'cifar100'],
+    choices=datasets,
+    help='실험할 데이터셋 목록 (cifar10, cifar100)'
+)
+args = parser.parse_args()
 
 # ----------------- GPU 메모리 그로스 설정 -----------------
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -21,7 +32,7 @@ DROPOUT_RATE    = 0.2
 L2_REG          = 1e-2                     # optional
 
 # ----------------- 데이터셋 목록 -----------------
-DATASETS = ['cifar10', 'cifar100']
+DATASETS = args.datasets
 
 # ----------------- 모델 빌더 -----------------
 def build_base(num_classes):

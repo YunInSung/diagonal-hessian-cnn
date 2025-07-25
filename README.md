@@ -28,32 +28,37 @@ diagonal-hessian-cnn/
 ├── MLP_custom_2ndOrder_opt/        ← MLP variant (for reference)
 │   ├── DNN_ADAM.py
 │   └── experiment_runner.py
-└── optimizer_benchmark_results/    ← Benchmark result CSVs for each dataset/optimizer combination (aggregated over 20 runs with distinct random seeds)seeds per experiment
+└── optimizer_benchmark_results/    ← Benchmark result CSVs for each dataset/optimizer combination (aggregated over 20 deterministic runs with seeds 0–19)
 ```
 
 ### Quick Start
 
 ```bash
-# Adam vs Custom optimizer
+# Adam vs Custom optimizer (default: cifar10 cifar100)
 python cnn_adam_vs_custom/experiment_cnn_adam.py
 
-# SGD vs Custom optimizer
+# SGD vs Custom optimizer (default: cifar10 cifar100)
 python cnn_sgd_vs_custom/experiment_cnn_sgd.py
+
+# Specify dataset(s) to run one at a time (to avoid OOM)
+python cnn_adam_vs_custom/experiment_cnn_adam.py --datasets cifar10
+python cnn_sgd_vs_custom/experiment_cnn_sgd.py --datasets cifar100
 ```
 
-Both scripts are self‑contained; simply run them to reproduce the experiments.
+Both scripts are self-contained; simply run them to reproduce the experiments.
+If you encounter GPU out-of-memory errors, run one dataset at a time using the `--datasets` option or lower the batch size.
 
 ### What’s inside `myModel_2opt.py`?
 
 * **Nested `GradientTape`** to capture the gradient *and* the diagonal Hessian in one pass.
-* **RMSProp‑style variance scaling** combined with bias‑corrected first‑order momentum.
-* A custom `train_step()` that applies a second‑order RMSProp update:
+* **RMSProp-style variance scaling** combined with bias-corrected first-order momentum.
+* A custom `train_step()` that applies a second-order RMSProp update:
 
   $$
   \theta \leftarrow \theta - \text{lr} \; \frac{\hat m}{\sqrt{\hat v} + \varepsilon}
   $$
 
-The two `myModel_2opt.py` files are identical apart from their default hyper‑parameters.
+The two `myModel_2opt.py` files are identical apart from their default hyper-parameters.
 
 > **Tip**
 > Diagonal‑Hessian extraction can be memory‑hungry. If you run into GPU limits, reduce the batch size or enable `jit_compile=True` for XLA acceleration.
