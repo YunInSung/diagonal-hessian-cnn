@@ -28,7 +28,7 @@ diagonal-hessian-cnn/
 ├── MLP_custom_2ndOrder_opt/        ← MLP variant (for reference)
 │   ├── DNN_ADAM.py
 │   └── experiment_runner.py
-└── optimizer_benchmark_results/    ← Logs & plots aggregated over 20 runs with distinct random seeds per experiment
+└── optimizer_benchmark_results/    ← Benchmark result CSVs for each dataset/optimizer combination (aggregated over 20 runs with distinct random seeds)seeds per experiment
 ```
 
 ### Quick Start
