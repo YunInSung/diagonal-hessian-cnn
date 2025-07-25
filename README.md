@@ -15,3 +15,47 @@ All changes applied uniformly to both variants:
   - **Learning rate** fixed in the range **7.5e‑5 – 1e‑4**
 - **Performance**: Even on a simple MLP architecture, this configuration consistently outperforms the original optimizer across training loss and convergence speed.
 
+## 2. CNN variant (`MyModel`)
+
+```text
+diagonal-hessian-cnn/
+├── cnn_adam_vs_custom/
+│   ├── experiment_cnn_adam.py      ← Experiment: Adam vs Custom
+│   └── myModel_2opt.py             ← Custom second‑order RMSProp model
+├── cnn_sgd_vs_custom/
+│   ├── experiment_cnn_sgd.py       ← Experiment: SGD vs Custom
+│   └── myModel_2opt.py             ← (same logic, different hyper‑parameters)
+├── MLP_custom_2ndOrder_opt/
+│   ├── DNN_ADAM.py
+│   └── experiment_runner.py
+└── optimizer_benchmark_results/    ← Logs & plots
+```
+
+### Quick Start
+
+```bash
+# Adam vs Custom optimizer
+python cnn_adam_vs_custom/experiment_cnn_adam.py
+
+# SGD vs Custom optimizer
+python cnn_sgd_vs_custom/experiment_cnn_sgd.py
+```
+
+Both scripts are self‑contained; simply run them to reproduce the experiments.
+
+### What’s inside `myModel_2opt.py`?
+
+* **Nested `GradientTape`** to capture the gradient *and* the diagonal Hessian in one pass.
+* **RMSProp‑style variance scaling** combined with bias‑corrected first‑order momentum.
+* A custom `train_step()` that applies a second‑order RMSProp update:
+
+  $$
+  \theta \leftarrow \theta - \text{lr} \; \frac{\hat m}{\sqrt{\hat v} + \varepsilon}
+  $$
+
+The two `myModel_2opt.py` files are identical apart from their default hyper‑parameters.
+
+> **Tip**
+> Diagonal‑Hessian extraction can be memory‑hungry. If you run into GPU limits, reduce the batch size or enable `jit_compile=True` for XLA acceleration.
+
+
