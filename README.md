@@ -67,6 +67,8 @@ The two `myModel_2opt.py` files are identical apart from their default hyper-par
 
 ## Adam vs Custom Performance Comparison Results
 
+> **Note**: All results are based on 25 epochs of training.
+
 Below table summarizes the mean performance of the Custom optimizer vs. Adam on CIFAR-10/100 datasets (20 deterministic runs with seeds 0–19).
 
 | Dataset       | Metric      | Adam Mean (±std) | Custom Mean (±std) | Mean Diff (Custom–Adam) | % Change | t-stat | p-value      |
@@ -85,6 +87,8 @@ Below table summarizes the mean performance of the Custom optimizer vs. Adam on 
 * The Custom optimizer achieves statistically significant improvements over Adam on both datasets, but training time increased by \~35.5% on CIFAR-10, with similar overhead on CIFAR-100.
 
 ## SGD vs Custom Performance Comparison Results
+
+> **Note**: All results are based on 25 epochs of training.
 
 Below table summarizes the mean performance of **SGD+Momentum** vs **Custom** optimizer on CIFAR-10/100 datasets (20 deterministic runs, seeds 0–19):
 
