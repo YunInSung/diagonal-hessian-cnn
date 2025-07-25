@@ -120,7 +120,6 @@ Below are the summarized conclusions comparing the Custom optimizer against both
 
 3. **Training Time Overhead**
    - +35–37% increase on both datasets and baselines  
-   - Mitigation: enable XLA or reduce batch size to recover some speed
 
 → **Conclusion**:  
 The Custom optimizer demonstrates strong performance gains—especially on complex tasks like CIFAR-100—and statistically significant improvements even on CIFAR-10 compared to Adam. While improvements vs. SGD+Momentum on CIFAR-10 fall just below the p < 0.05 threshold, quantitative gains are consistent. The ~35% training time overhead means this optimizer is best suited for scenarios where accuracy is prioritized over speed. Its advantages grow with task complexity (more classes, more complex data distributions).
