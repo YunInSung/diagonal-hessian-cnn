@@ -84,7 +84,7 @@ Below table summarizes the mean performance of the Custom optimizer vs. Adam on 
 * **Significance levels**: p < 0.05 (\*), p < 0.001 (\*\*).
 * The Custom optimizer achieves statistically significant improvements over Adam on both datasets, but training time increased by \~35.5% on CIFAR-10, with similar overhead on CIFAR-100.
 
-## SGD vs Custom Performance Comparison Results (English)
+## SGD vs Custom Performance Comparison Results
 
 Below table summarizes the mean performance of **SGD+Momentum** vs **Custom** optimizer on CIFAR-10/100 datasets (20 deterministic runs, seeds 0–19):
 
