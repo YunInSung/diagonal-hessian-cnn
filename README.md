@@ -101,3 +101,26 @@ Below table summarizes the mean performance of **SGD+Momentum** vs **Custom** op
 
 * **Significance levels**: p < 0.05 (\*), p < 0.001 (\*\*).
 * The Custom optimizer shows statistically significant improvements across all metrics on CIFAR-100 and clear gains on CIFAR-10, with a training time overhead of \~36–37%.
+
+## Comprehensive Conclusion
+
+Below are the summarized conclusions comparing the Custom optimizer against both Adam and SGD+Momentum:
+
+1. **Performance Improvements (Accuracy & F1)**
+   - **CIFAR-10**
+     - vs. Adam: ~+3.5% (F1/val_acc), statistically significant (p < 0.001)  
+     - vs. SGD+Momentum: ~+3.2% (F1/val_acc), improvement noted but not statistically significant (p ≈ 0.07)
+   - **CIFAR-100**
+     - vs. Adam: ~+19.8% (F1/val_acc), highly significant (p < 0.001)  
+     - vs. SGD+Momentum: ~+8.7% (F1) – +9.6% (val_acc), significant (p < 0.01)
+
+2. **Loss Reduction**
+   - **CIFAR-10**: −10.6% vs. Adam (p < 0.01), −13.0% vs. SGD+Momentum (p ≈ 0.096)  
+   - **CIFAR-100**: −18.1% vs. Adam (p < 0.01), −16.3% vs. SGD+Momentum (p < 0.05)
+
+3. **Training Time Overhead**
+   - +35–37% increase on both datasets and baselines  
+   - Mitigation: enable XLA or reduce batch size to recover some speed
+
+→ **Conclusion**:  
+The Custom optimizer demonstrates strong performance gains—especially on complex tasks like CIFAR-100—and statistically significant improvements even on CIFAR-10 compared to Adam. While improvements vs. SGD+Momentum on CIFAR-10 fall just below the p < 0.05 threshold, quantitative gains are consistent. The ~35% training time overhead means this optimizer is best suited for scenarios where accuracy is prioritized over speed. Its advantages grow with task complexity (more classes, more complex data distributions).
