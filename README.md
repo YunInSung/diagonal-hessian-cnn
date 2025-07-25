@@ -42,6 +42,8 @@ python cnn_sgd_vs_custom/experiment_cnn_sgd.py
 
 # Specify dataset(s) to run one at a time (to avoid OOM)
 python cnn_adam_vs_custom/experiment_cnn_adam.py --datasets cifar10
+python cnn_adam_vs_custom/experiment_cnn_adam.py --datasets cifar100
+python cnn_sgd_vs_custom/experiment_cnn_sgd.py --datasets cifar10
 python cnn_sgd_vs_custom/experiment_cnn_sgd.py --datasets cifar100
 ```
 
