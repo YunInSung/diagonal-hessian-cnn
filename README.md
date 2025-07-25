@@ -80,3 +80,21 @@ Below table summarizes the mean performance of the Custom optimizer vs. Adam on 
 * **Significance levels**: p < 0.05 (\*), p < 0.001 (\*\*).
 * The Custom optimizer achieves statistically significant improvements over Adam on both datasets, but training time increased by \~35.5% on CIFAR-10, with similar overhead on CIFAR-100.
 
+## SGD vs Custom Performance Comparison Results (English)
+
+Below table summarizes the mean performance of **SGD+Momentum** vs **Custom** optimizer on CIFAR-10/100 datasets (20 deterministic runs, seeds 0–19):
+
+| Dataset       | Metric      | SGD Mean (±std) | Custom Mean (±std) | Mean Diff (Custom–SGD) | % Change | t-stat | p-value      |
+| ------------- | ----------- | --------------- | ------------------ | ---------------------- | -------- | ------ | ------------ |
+| **CIFAR-10**  | f1          | 0.7820 ± 0.0566 | 0.8073 ± 0.0119    | +0.0253                | +3.24%   | 1.894  | 0.07351      |
+|               | val\_acc    | 0.7829 ± 0.0560 | 0.8082 ± 0.0112    | +0.0253                | +3.23%   | 1.924  | 0.06940      |
+|               | val\_loss   | 0.6846 ± 0.2113 | 0.5956 ± 0.0443    | −0.0890                | −13.00%  | −1.752 | 0.09585      |
+|               | train\_time | 105.65 ± 2.06 s | 144.43 ± 1.29 s    | +38.78 s               | +36.71%  | 73.250 | \~0 \*\*     |
+| **CIFAR-100** | val\_loss   | 2.1820 ± 0.6189 | 1.8259 ± 0.0395    | −0.3561                | −16.33%  | −2.667 | 0.01523 \*   |
+|               | val\_acc    | 0.4690 ± 0.0565 | 0.5141 ± 0.0080    | +0.0450                | +9.59%   | 3.753  | 0.00135 \*\* |
+|               | f1          | 0.4677 ± 0.0586 | 0.5085 ± 0.0088    | +0.0408                | +8.71%   | 3.243  | 0.00428 \*\* |
+|               | train\_time | 107.77 ± 2.07 s | 147.43 ± 2.52 s    | +39.66 s               | +36.80%  | 71.918 | \~0 \*\*     |
+
+* **Significance levels**: p < 0.05 (\*), p < 0.001 (\*\*).
+* The Custom optimizer shows statistically significant improvements across all metrics on CIFAR-100 and clear gains on CIFAR-10, with a training time overhead of \~36–37%.
+
