@@ -244,6 +244,3 @@ _Based on the newly-uploaded CSV files (10 seeds for **Adam** runs, 20 seeds for
 
 * **Compute Cost**  
   * Diagonal-Hessian updates add roughly **+24 – 29 %** wall-clock time across the board.
-
-> **Recommendation:**  
-> Use the Custom optimizer when **validation loss or generalisation on difficult, high-class problems is a priority** (e.g. CIFAR-100-like scenarios) and the ~25 % time premium is acceptable. For easier datasets where Adam already performs near saturation, the benefit is marginal; for SGD baselines, results are mixed and warrant task-specific benchmarking.
