@@ -88,7 +88,7 @@ Below table summarizes the mean performance of the Custom optimizer vs. Adam on 
 
 ## SGD vs Custom Performance Comparison Results
 
-> **Note**: All results are based on 25 epochs of training.
+> **Note**: All results are based on 40 epochs of training.
 
 ### 1. Experimental Setup
 | Item | Details |
