@@ -131,14 +131,6 @@ The two `myModel_2opt.py` files are identical apart from their default hyper-par
 
 ---
 
-### 4. Recommendations & Next Steps
-1. **Power Analysis** – increasing seeds to ≥40 could confirm whether the modest CIFAR-10 gains become significant.  
-2. **Hyper-parameter Tuning** – revisit dropout, label smoothing, damping to amplify CIFAR-10 improvements.  
-3. **Cost Mitigation** – compute Hessian diagonals every *k* steps or only in later epochs; enable mixed-precision & XLA.  
-4. **Broader Benchmarks** – test deeper CNNs (e.g., ResNet-34), ViTs, and language tasks to assess generality.  
-5. **Ablation Study** – isolate the contributions of Hessian scaling vs. momentum to explain the observed lift on CIFAR-100.
-
-
 ## SGD vs Custom Performance Comparison Results
 
 > **Note**: All results are based on 40 epochs of training.
@@ -203,24 +195,41 @@ The two `myModel_2opt.py` files are identical apart from their default hyper-par
 
 ---
 
-## Comprehensive Conclusion
+## Comprehensive Conclusion  
 
-Below are the summarized conclusions comparing the Custom optimizer against both Adam and SGD+Momentum:
+Below is a consolidated summary comparing the **Custom diagonal-Hessian optimizer** against both **Adam** and **SGD + Momentum** under identical CNN settings (40 epochs, CIFAR-10/100).
 
-1. **Performance Improvements (Accuracy & F1)**
-   - **CIFAR-10**
-     - vs. Adam: ~+3.5% (F1/val_acc), statistically significant (p < 0.001)  
-     - vs. SGD+Momentum: ~+3.2% (F1/val_acc), improvement noted but not statistically significant (p ≈ 0.07)
-   - **CIFAR-100**
-     - vs. Adam: ~+19.8% (F1/val_acc), highly significant (p < 0.001)  
-     - vs. SGD+Momentum: ~+8.7% (F1) – +9.6% (val_acc), significant (p < 0.01)
+---
 
-2. **Loss Reduction**
-   - **CIFAR-10**: −10.6% vs. Adam (p < 0.01), −13.0% vs. SGD+Momentum (p ≈ 0.096)  
-   - **CIFAR-100**: −18.1% vs. Adam (p < 0.01), −16.3% vs. SGD+Momentum (p < 0.05)
+### 1. Performance Improvements (Accuracy & F1)
 
-3. **Training Time Overhead**
-   - +35–37% increase on both datasets and baselines  
+| Dataset | Versus Adam | Versus SGD + Momentum |
+|---------|-------------|-----------------------|
+| **CIFAR-10** | **≈ +3.5 %** on *F1* / *val_acc* &nbsp;— highly significant (*p* < 0.001) | **≈ +3.2 %** on *F1* / *val_acc* &nbsp;— improvement present but not statistically significant (*p* ≈ 0.07) |
+| **CIFAR-100** | **≈ +19.8 %** on *F1* / *val_acc* &nbsp;— strongly significant (*p* < 0.001) | **≈ +8.7 %** (*F1*) – **+9.6 %** (*val_acc*) &nbsp;— significant (*p* < 0.01) |
 
-→ **Conclusion**:  
-The Custom optimizer demonstrates strong performance gains—especially on complex tasks like CIFAR-100—and statistically significant improvements even on CIFAR-10 compared to Adam. While improvements vs. SGD+Momentum on CIFAR-10 fall just below the p < 0.05 threshold, quantitative gains are consistent. The ~35% training time overhead means this optimizer is best suited for scenarios where accuracy is prioritized over speed. Its advantages grow with task complexity (more classes, more complex data distributions).
+---
+
+### 2. Loss Reduction
+
+| Dataset | Versus Adam | Versus SGD + Momentum |
+|---------|-------------|-----------------------|
+| **CIFAR-10** | **−10.6 %** (*p* < 0.01) | **−13.0 %** (*p* ≈ 0.096) |
+| **CIFAR-100** | **−18.1 %** (*p* < 0.01) | **−16.3 %** (*p* < 0.05) |
+
+---
+
+### 3. Training-Time Overhead  
+
+*Across both datasets and baselines, the Custom optimizer adds roughly **+35 – 37 %** wall-clock training time due to Hessian-diagonal computations.*
+
+---
+
+### 4. Overall Verdict  
+
+The **Custom optimizer** delivers **consistent, sometimes dramatic accuracy and F1 gains**—especially on the more challenging CIFAR-100 task—while also reducing validation loss across the board.  
+* On CIFAR-10, it **outperforms Adam with strong statistical support**, and while its edge over SGD + Momentum is just outside the conventional significance threshold, the direction and magnitude of improvement remain positive.  
+* On CIFAR-100, it **clearly surpasses both Adam and SGD + Momentum**, achieving double-digit percentage gains in core performance metrics with solid statistical backing.
+
+The trade-off is a **~35 % increase in training time**. Consequently, the Custom optimizer is best suited for scenarios where **accuracy / generalization are paramount and additional compute is acceptable**. Its advantages appear to scale with task complexity—hinting at even greater relative benefits on larger, noisier, or higher-class-count datasets.
+
