@@ -6,6 +6,8 @@ This repository delivers a TensorFlow-based diagonal-Hessian optimizer refactore
 - **CIFAR-100**: Outperforms **Adam**, reducing validation loss by **8.3%** and increasing macro-F1 by **2.5%** (p < 0.01), and surpasses **SGD + Momentum** with a **2.8%** lower loss (p < 0.01).
 - **CIFAR-10**: Cuts validation loss by **3.3%** over **SGD**, with negligible difference against **Adam**.
 
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/YunInSung/diagonal-hessian-cnn/blob/main/demo.ipynb)
+
 ## 📋 System Requirements
 
 * **OS**: Ubuntu 22.04 LTS
