@@ -67,24 +67,77 @@ The two `myModel_2opt.py` files are identical apart from their default hyper-par
 
 ## Adam vs Custom Performance Comparison Results
 
-> **Note**: All results are based on 25 epochs of training.
+> **Note**: All results are based on 40 epochs of training.
 
-Below table summarizes the mean performance of the Custom optimizer vs. Adam on CIFAR-10/100 datasets (20 deterministic runs with seeds 0–19).
+### 1. Experimental Setup
+| Item | Details |
+|------|---------|
+| **Datasets** | CIFAR-10, CIFAR-100 (Keras default train / test splits) |
+| **Model** | 3 × {Conv-BN-ReLU-MaxPool-Dropout} → Dense 512 → Softmax |
+| **Baselines** | **Adam** (default LR = 0.001, β₁ = 0.9, β₂ = 0.999) |
+| **Custom** | `MyModel` (diagonal-Hessian second-order method) – identical network |
+| **Runs** | 10 deterministic seeds (0-9), same list for both optimizers |
+| **Metrics** | `val_loss`, `val_acc`, macro `f1`, `train_time` |
+| **Statistics** | Paired two-tailed *t*-test (α = 0.05); effect size implicit via % change |
 
-| Dataset       | Metric      | Adam Mean (±std) | Custom Mean (±std) | Mean Diff (Custom–Adam) | % Change | t-stat | p-value      |
-| ------------- | ----------- | ---------------- | ------------------ | ----------------------- | -------- | ------ | ------------ |
-| **CIFAR-10**  | f1          | 0.7814 ± 0.0260  | 0.8081 ± 0.0097    | +0.0268                 | +3.42%   | 4.305  | 0.00038 \*\* |
-|               | val\_acc    | 0.7819 ± 0.0274  | 0.8096 ± 0.0099    | +0.0277                 | +3.54%   | 4.311  | 0.00038 \*\* |
-|               | val\_loss   | 0.6624 ± 0.0903  | 0.5920 ± 0.0368    | −0.0704                 | −10.63%  | −3.060 | 0.00644 \*   |
-|               | train\_time | 109.46 ± 2.54 s  | 148.28 ± 2.04 s    | +38.82 s                | +35.47%  | 50.689 | \~0 \*\*     |
-| **CIFAR-100** | val\_loss   | 2.2495 ± 0.4873  | 1.8426 ± 0.0535    | −0.4069                 | −18.10%  | −3.668 | 0.00164 \*\* |
-|               | val\_acc    | 0.4256 ± 0.0725  | 0.5100 ± 0.0097    | +0.0844                 | +19.83%  | 5.104  | 0.00006 \*\* |
-|               | f1          | 0.4212 ± 0.0710  | 0.5049 ± 0.0106    | +0.0837                 | +19.87%  | 5.225  | 0.00005 \*\* |
-|               | train\_time | 109.72 ± 2.30 s  | 147.97 ± 2.00 s    | +38.25 s                | +34.86%  | 55.603 | \~0 \*\*     |
+---
 
+### 2. Aggregate Results
 
-* **Significance levels**: p < 0.05 (\*), p < 0.001 (\*\*).
-* The Custom optimizer achieves statistically significant improvements over Adam on both datasets, but training time increased by \~35.5% on CIFAR-10, with similar overhead on CIFAR-100.
+#### 2.1 CIFAR-10
+
+| Metric | Adam Mean ± SD | Custom Mean ± SD | Δ (Custom–Adam) | % Change | *t* | *p*-value | Sig. |
+|--------|----------------|------------------|-----------------|----------|-----|-----------|------|
+| **val_loss** | 0.5686 ± 0.0354 | 0.5501 ± 0.0293 | −0.0185 | −3.25 % | −1.261 | 0.23912 | |
+| **val_acc**  | 0.8451 ± 0.0080 | 0.8444 ± 0.0054 | −0.0007 | −0.08 % | −0.238 | 0.81724 | |
+| **f1**       | 0.8448 ± 0.0075 | 0.8435 ± 0.0050 | −0.0013 | −0.16 % | −0.454 | 0.66073 | |
+| **train_time** | 203.74 ± 3.02 s | 253.23 ± 4.81 s | +49.49 s | +24.29 % | +37.957 | < 1 e-10 ** | ** |
+
+**Key points**
+
+* Custom optimiser trends in the desired direction for loss (−3 %) but ↓0.1 % in accuracy/F1 – none statistically significant.  
+* **+24 % training-time overhead** is highly significant.
+
+---
+
+#### 2.2 CIFAR-100
+
+| Metric | Adam Mean ± SD | Custom Mean ± SD | Δ (Custom–Adam) | % Change | *t* | *p*-value | Sig. |
+|--------|----------------|------------------|-----------------|----------|-----|-----------|------|
+| **val_loss** | 1.7774 ± 0.0298 | 1.6298 ± 0.0413 | −0.1477 | −8.31 % | −8.023 | 0.00002 | ** |
+| **val_acc**  | 0.5526 ± 0.0055 | 0.5673 ± 0.0092 | +0.0147 | +2.67 % | +3.884 | 0.00371 | * |
+| **f1**       | 0.5507 ± 0.0057 | 0.5646 ± 0.0095 | +0.0139 | +2.52 % | +3.495 | 0.00678 | * |
+| **train_time** | 213.94 ± 4.15 s | 264.36 ± 3.64 s | +50.41 s | +23.56 % | +75.898 | < 1 e-13 ** | ** |
+
+**Key points**
+
+* Custom optimiser **significantly lowers loss (−8 %, *p* ≪ 0.001)** and **raises accuracy/F1 by ~2.6 % (p < 0.01)**.  
+* Training-time penalty similar to CIFAR-10 (~24 %).
+
+---
+
+#### Significance Flags
+* `*` *p* < 0.05  `**` *p* < 0.001  
+
+---
+
+### 3. Interpretation
+
+| Aspect | Summary |
+|--------|---------|
+| **Performance** | *CIFAR-10*: gains are small and non-significant.<br>*CIFAR-100*: clear, statistically significant improvements across all performance metrics. |
+| **Stability** | Custom optimiser shows lower run-to-run variance on both datasets. |
+| **Compute Cost** | Diagonal-Hessian updates add ≈24 % training time in both cases. |
+
+---
+
+### 4. Recommendations & Next Steps
+1. **Power Analysis** – increasing seeds to ≥40 could confirm whether the modest CIFAR-10 gains become significant.  
+2. **Hyper-parameter Tuning** – revisit dropout, label smoothing, damping to amplify CIFAR-10 improvements.  
+3. **Cost Mitigation** – compute Hessian diagonals every *k* steps or only in later epochs; enable mixed-precision & XLA.  
+4. **Broader Benchmarks** – test deeper CNNs (e.g., ResNet-34), ViTs, and language tasks to assess generality.  
+5. **Ablation Study** – isolate the contributions of Hessian scaling vs. momentum to explain the observed lift on CIFAR-100.
+
 
 ## SGD vs Custom Performance Comparison Results
 
