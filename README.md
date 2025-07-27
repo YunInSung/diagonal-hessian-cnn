@@ -150,14 +150,6 @@ Below table summarizes the mean performance of the Custom optimizer vs. Adam on 
 
 ---
 
-### 4. Recommendations & Next Steps
-1. **Increase Statistical Power** – doubling seed count (~40) should reveal if CIFAR-10 gains reach *p* < 0.05.  
-2. **Regularisation & Tuning** – adjust dropout, label-smoothing, damping to counter CIFAR-100 over-fit.  
-3. **Cost Mitigation** – evaluate Hessian updates every *k* steps or only late-stage; enable mixed-precision & XLA.  
-4. **Broader Benchmarks** – test ResNet-style CNNs, ViTs, and NLP datasets.  
-5. **Ablation Study** – isolate contributions of diagonal-Hessian vs. momentum components.
-
-
 ## Comprehensive Conclusion
 
 Below are the summarized conclusions comparing the Custom optimizer against both Adam and SGD+Momentum:
