@@ -1,3 +1,54 @@
+# diagonal-hessian-cnn
+
+## Abstract
+This repository delivers a TensorFlow-based diagonal-Hessian optimizer refactored into an RMSProp-style variant (`lr=1e-4`, `diff=0.3`, `square=5`), wrapped in a `MyModel` subclass for both MLP and CNN architectures.
+
+- **CIFAR-100**: Outperforms **Adam**, reducing validation loss by **8.3%** and increasing macro-F1 by **2.5%** (p < 0.01), and surpasses **SGD + Momentum** with a **2.8%** lower loss (p < 0.01).
+- **CIFAR-10**: Cuts validation loss by **3.3%** over **SGD**, with negligible difference against **Adam**.
+
+## 📋 System Requirements
+
+* **OS**: Ubuntu 22.04 LTS
+* **Python**: 3.9
+* **CUDA**: 12.1 (nvcc V12.1.105)
+* **cuDNN**: 9.9.0
+* **TensorFlow**: 2.15.0 (XLA JIT enabled)
+* **Main Libraries**
+
+  ```text
+  matplotlib==3.9.4
+  numpy==1.26.4
+  pandas==2.2.3
+  scikit-learn==1.6.1
+  tensorflow==2.15.0
+  tensorflow-addons==0.22.0
+  tensorflow-estimator==2.15.0
+  tensorflow-io-gcs-filesystem==0.37.1
+  tensorflow-probability==0.25.0
+  ```
+
+---
+
+## 🛠 Installation
+
+> **GPU vs. CPU**
+> A CUDA‑compatible GPU (CUDA 12.1 + cuDNN 9.9) is strongly recommended for reasonable training times. If TensorFlow does not detect a GPU, the scripts automatically fall back to **CPU mode**, which can be **≈ 10× slower** for CIFAR‑10 and substantially more for larger datasets.
+
+```bash
+git clone https://github.com/YunInSung/diagonal-hessian-cnn.git
+cd diagonal-hessian-cnn
+
+# Create and activate a virtual environment
+python3.9 -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+---
+
 ## Modified Custom Optimizer (RMSProp variant)
 
 This repository builds on the original MLP implementation from [relu‑based‑2ndOrder‑convergence](https://github.com/YunInSung/relu-based-2ndOrder-convergence) in two ways:
@@ -12,7 +63,7 @@ All changes applied uniformly to both variants:
 - Hyperparameters adjusted to:
   - `diff = 0.3`
   - `square = 5`
-  - **Learning rate** fixed in the range **7.5e‑5 – 1e‑4**
+  - **Learning rate** fixed at **1e‑4**
 - **Performance**: Even on a simple MLP architecture, this configuration consistently outperforms the original optimizer across training loss and convergence speed.
 
 ## CNN variant (`MyModel`)
