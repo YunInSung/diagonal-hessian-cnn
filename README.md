@@ -196,40 +196,54 @@ The two `myModel_2opt.py` files are identical apart from their default hyper-par
 ---
 
 ## Comprehensive Conclusion  
-
-Below is a consolidated summary comparing the **Custom diagonal-Hessian optimizer** against both **Adam** and **SGD + Momentum** under identical CNN settings (40 epochs, CIFAR-10/100).
-
----
-
-### 1. Performance Improvements (Accuracy & F1)
-
-| Dataset | Versus Adam | Versus SGD + Momentum |
-|---------|-------------|-----------------------|
-| **CIFAR-10** | **≈ +3.5 %** on *F1* / *val_acc* &nbsp;— highly significant (*p* < 0.001) | **≈ +3.2 %** on *F1* / *val_acc* &nbsp;— improvement present but not statistically significant (*p* ≈ 0.07) |
-| **CIFAR-100** | **≈ +19.8 %** on *F1* / *val_acc* &nbsp;— strongly significant (*p* < 0.001) | **≈ +8.7 %** (*F1*) – **+9.6 %** (*val_acc*) &nbsp;— significant (*p* < 0.01) |
+_Based on the newly-uploaded CSV files (10 seeds for **Adam** runs, 20 seeds for **SGD + Momentum** runs, 40 training epochs)._
 
 ---
 
-### 2. Loss Reduction
+### 1 · Performance Gains (val_acc & macro-F1)
 
-| Dataset | Versus Adam | Versus SGD + Momentum |
-|---------|-------------|-----------------------|
-| **CIFAR-10** | **−10.6 %** (*p* < 0.01) | **−13.0 %** (*p* ≈ 0.096) |
-| **CIFAR-100** | **−18.1 %** (*p* < 0.01) | **−16.3 %** (*p* < 0.05) |
+| Dataset | vs Adam | Significance | vs SGD + Mom | Significance |
+|---------|---------|--------------|--------------|--------------|
+| **CIFAR-10** | −0.1 % (*val_acc*), −0.2 % (*F1*) | n.s. (p > 0.6) | **+0.6 %** (*val_acc* / *F1*) | n.s. (p ≈ 0.14–0.17) |
+| **CIFAR-100** | **+2.7 %** (*val_acc*), **+2.5 %** (*F1*) | **p < 0.01** | −0.9 % (*val_acc*), −1.1 % (*F1*) | *val_acc* n.s. (p ≈ 0.07); *F1* **p < 0.05** (decline) |
 
----
-
-### 3. Training-Time Overhead  
-
-*Across both datasets and baselines, the Custom optimizer adds roughly **+35 – 37 %** wall-clock training time due to Hessian-diagonal computations.*
+**Take-away**  
+*Custom beats Adam convincingly on the harder CIFAR-100 task, but shows no advantage on CIFAR-10. Versus SGD it gains a bit on CIFAR-10 and improves loss everywhere, yet loses a small amount of accuracy/F1 on CIFAR-100.*
 
 ---
 
-### 4. Overall Verdict  
+### 2 · Loss Reduction (val_loss)
 
-The **Custom optimizer** delivers **consistent, sometimes dramatic accuracy and F1 gains**—especially on the more challenging CIFAR-100 task—while also reducing validation loss across the board.  
-* On CIFAR-10, it **outperforms Adam with strong statistical support**, and while its edge over SGD + Momentum is just outside the conventional significance threshold, the direction and magnitude of improvement remain positive.  
-* On CIFAR-100, it **clearly surpasses both Adam and SGD + Momentum**, achieving double-digit percentage gains in core performance metrics with solid statistical backing.
+| Dataset | vs Adam | Significance | vs SGD + Mom | Significance |
+|---------|---------|--------------|--------------|--------------|
+| **CIFAR-10** | **−3.25 %** | p ≈ 0.24 (n.s.) | **−4.08 %** | p ≈ 0.18 (n.s.) |
+| **CIFAR-100** | **−8.31 %** | **p ≪ 0.001** | **−2.75 %** | **p < 0.01** |
 
-The trade-off is a **~35 % increase in training time**. Consequently, the Custom optimizer is best suited for scenarios where **accuracy / generalization are paramount and additional compute is acceptable**. Its advantages appear to scale with task complexity—hinting at even greater relative benefits on larger, noisier, or higher-class-count datasets.
+*Hessian scaling consistently lowers validation loss; the effect is dramatic (−8 %) on CIFAR-100.*
 
+---
+
+### 3 · Training-Time Overhead  
+
+| Dataset | vs Adam | vs SGD + Mom |
+|---------|---------|--------------|
+| **CIFAR-10** | **+24.3 %** (p ≪ 0.001) | **+28.6 %** (p ≪ 0.001) |
+| **CIFAR-100** | **+23.6 %** (p ≪ 0.001) | **+27.5 %** (p ≪ 0.001) |
+
+---
+
+### 4 · Overall Verdict  
+
+* **Against Adam**  
+  * **CIFAR-100:** clear win—lower loss and ~+2.6 % accuracy/F1, all statistically significant.  
+  * **CIFAR-10:** only a minor (non-significant) loss drop; accuracy unchanged.  
+
+* **Against SGD + Momentum**  
+  * **CIFAR-10:** small, non-significant accuracy/F1 gain (+0.6 %) and modest loss drop.  
+  * **CIFAR-100:** better loss (−2.8 %, p < 0.01) but a slight accuracy/F1 decline (≤ 1 %).  
+
+* **Compute Cost**  
+  * Diagonal-Hessian updates add roughly **+24 – 29 %** wall-clock time across the board.
+
+> **Recommendation:**  
+> Use the Custom optimizer when **validation loss or generalisation on difficult, high-class problems is a priority** (e.g. CIFAR-100-like scenarios) and the ~25 % time premium is acceptable. For easier datasets where Adam already performs near saturation, the benefit is marginal; for SGD baselines, results are mixed and warrant task-specific benchmarking.
