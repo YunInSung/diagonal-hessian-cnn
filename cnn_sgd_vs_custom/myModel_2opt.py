@@ -4,7 +4,7 @@ from tensorflow.keras import Model
 class MyModel(Model):
     def __init__(self, inputs, outputs,
                  beta1=0.9, beta2=0.999,
-                 learning_rate=7.5e-5, epsilon=1e-7,
+                 learning_rate=1e-4, epsilon=1e-7,
                  **kwargs):
         super().__init__(inputs=inputs, outputs=outputs, **kwargs)
         # 하이퍼파라미터
