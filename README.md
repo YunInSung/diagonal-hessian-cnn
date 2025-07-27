@@ -97,7 +97,7 @@ Below table summarizes the mean performance of the Custom optimizer vs. Adam on 
 | **Model** | Three Conv-BN-ReLU-MaxPool-Dropout blocks → Dense 512 → Softmax |
 | **Baselines** | **SGD** (learning rate = 0.01, momentum = 0.9, Nesterov ON) |
 | **Custom** | `MyModel` (diagonal-Hessian second-order method) – identical network |
-| **Runs** | 20 independent PRNG seeds, shared between optimizers |
+| **Runs** | 20 seeds (0–19), same list used for both optimizers |
 | **Metrics** | `val_loss`, `val_acc`, macro-`f1`, `train_time` |
 | **Statistics** | Paired two-tailed *t*-test (α = 0.05); effect size shown via % change |
 
