@@ -1,10 +1,24 @@
 # diagonal-hessian-cnn
 
 ## Abstract
-This repository delivers a TensorFlow-based diagonal-Hessian optimizer refactored into an RMSProp-style variant (`lr=1e-4`, `diff=0.3`, `square=5`), wrapped in a `MyModel` subclass for both MLP and CNN architectures.
+This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 5**, **lr = 7.0×10⁻⁶ (CIFAR-10), 6.5×10⁻⁶ (CIFAR-100)**). All results below are averaged over **20 deterministic seeds (0–19)** with **50 epochs** per run and paired two-tailed *t*-tests.
 
-- **CIFAR-100**: Outperforms **Adam**, reducing validation loss by **8.3%** and increasing macro-F1 by **2.5%** (p < 0.01), and surpasses **SGD + Momentum** with a **2.8%** lower loss (p < 0.01).
-- **CIFAR-10**: Cuts validation loss by **3.3%** over **SGD**, with negligible difference against **Adam**.
+## Key Results (Custom vs Adam, 50 epochs)
+
+### CIFAR-10
+- **val_loss**: −5.61% (*p* = 0.013)  
+- **val_acc**: +0.72 pp (*p* = 0.033)  
+- **macro-F1**: +0.62 pp (*p* = 0.050)  
+- **Training-time overhead**: **+25.8%**
+
+### CIFAR-100
+- **val_loss**: −2.98% (*p* = 0.009)  
+- **val_acc**: +1.51 pp (*p* = 0.020)  
+- **macro-F1**: +1.36 pp (*p* = 0.030)  
+- **Training-time overhead**: **+25.5%**
+
+## Stability
+Beyond mean performance, the custom optimizer shows **smaller run-to-run variability** (lower standard deviations) across metrics.
 
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/YunInSung/diagonal-hessian-cnn/blob/main/demo.ipynb)
 
