@@ -18,7 +18,7 @@ This repository provides a TensorFlow implementation of a **diagonal-Hessian, RM
 ### Stability
 Beyond mean performance, the custom optimizer exhibits **smaller run-to-run variability** (lower standard deviations) across all metrics, indicating improved reproducibility.
 
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/YunInSung/diagonal-hessian-cnn/blob/main/demo.ipynb)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YunInSung/relu-based-2ndOrder-convergence/blob/main/demo.ipynb)
 
 ## 📋 System Requirements
 
