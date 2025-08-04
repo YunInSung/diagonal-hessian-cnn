@@ -1,5 +1,8 @@
 # diagonal-hessian-cnn
 
+## 🚧 Pilot Study
+*This repository contains preliminary results for a diagonal-Hessian RMSProp optimizer. Full benchmarking and ablation studies are forthcoming.*
+
 ## Abstract
 This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 5**, **lr = 7.0×10⁻⁶ (CIFAR-10), 6.5×10⁻⁶ (CIFAR-100)**). All results are averaged over **20 deterministic seeds (0—19)** with **50 epochs** per run and evaluated via paired two-tailed *t*-tests.  
 
