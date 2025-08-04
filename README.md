@@ -1,24 +1,24 @@
 # diagonal-hessian-cnn
 
 ## Abstract
-This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 5**, **lr = 7.0×10⁻⁶ (CIFAR-10), 6.5×10⁻⁶ (CIFAR-100)**). All results below are averaged over **20 deterministic seeds (0–19)** with **50 epochs** per run and paired two-tailed *t*-tests.
+This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 5**, **lr = 7.0×10⁻⁶ (CIFAR-10), 6.5×10⁻⁶ (CIFAR-100)**). All results are averaged over **20 deterministic seeds (0—19)** with **50 epochs** per run and evaluated via paired two-tailed *t*-tests.  
 
-## Key Results (Custom vs Adam, 50 epochs)
+### Key Results (Custom vs Adam, 50 epochs)
 
-### CIFAR-10
-- **val_loss**: −5.61% (*p* = 0.013)  
+#### CIFAR-10
+- **val_loss**: −5.61 % (*p* = 0.013)  
 - **val_acc**: +0.72 pp (*p* = 0.033)  
 - **macro-F1**: +0.62 pp (*p* = 0.050)  
-- **Training-time overhead**: **+25.8%**
+- **Training-time overhead**: **+25.8 %**
 
-### CIFAR-100
-- **val_loss**: −2.98% (*p* = 0.009)  
+#### CIFAR-100
+- **val_loss**: −2.98 % (*p* = 0.009)  
 - **val_acc**: +1.51 pp (*p* = 0.020)  
 - **macro-F1**: +1.36 pp (*p* = 0.030)  
-- **Training-time overhead**: **+25.5%**
+- **Training-time overhead**: **+25.5 %**
 
-## Stability
-Beyond mean performance, the custom optimizer shows **smaller run-to-run variability** (lower standard deviations) across metrics.
+### Stability
+Beyond mean performance, the custom optimizer exhibits **smaller run-to-run variability** (lower standard deviations) across all metrics, indicating improved reproducibility.
 
   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/YunInSung/diagonal-hessian-cnn/blob/main/demo.ipynb)
 
