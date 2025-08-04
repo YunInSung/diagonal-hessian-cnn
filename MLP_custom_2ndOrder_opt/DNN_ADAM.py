@@ -46,7 +46,7 @@ def diff_fuc(x, alpha, init_val) :
     return tf.math.log(init_val + alpha * x) / (1 + tf.math.log(init_val + alpha * x))
 
 class DNN:
-    def __init__(self, layer_sizes, batch_size=128, initializer='he', dropout_rate=0.00, label_smoothing=0.00, lr=0.85e-5):
+    def __init__(self, layer_sizes, batch_size=128, initializer='he', dropout_rate=0.00, label_smoothing=0.00, lr=0.9e-5):
         self.layer_sizes = layer_sizes
         self.initializer = initializer
         self.batch_size = batch_size
