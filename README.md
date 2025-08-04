@@ -9,13 +9,11 @@ This repository provides a TensorFlow implementation of a **diagonal-Hessian, RM
 - **val_loss**: −5.61 % (*p* = 0.013)  
 - **val_acc**: +0.72 pp (*p* = 0.033)  
 - **macro-F1**: +0.62 pp (*p* = 0.050)  
-- **Training-time overhead**: **+25.8 %**
 
 #### CIFAR-100
 - **val_loss**: −2.98 % (*p* = 0.009)  
 - **val_acc**: +1.51 pp (*p* = 0.020)  
 - **macro-F1**: +1.36 pp (*p* = 0.030)  
-- **Training-time overhead**: **+25.5 %**
 
 ### Stability
 Beyond mean performance, the custom optimizer exhibits **smaller run-to-run variability** (lower standard deviations) across all metrics, indicating improved reproducibility.
