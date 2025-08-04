@@ -25,7 +25,7 @@ for gpu in gpus:
 
 # ----------------- 하이퍼파라미터 -----------------
 SEEDS           = list(range(20))   # 20회 반복
-EPOCHS          = 40
+EPOCHS          = 50
 BATCH_SIZE      = 64
 DROPOUT_RATE    = 0.4
 L2_REG          = 1e-2                     # optional
@@ -48,8 +48,13 @@ def build_base(num_classes):
     x = conv_block(x, 128)
     x = layers.Flatten()(x)
     x = layers.Dense(512)(x)
+    x = layers.BatchNormalization()(x)
     x = layers.Activation('relu')(x)
-    x = layers.Dropout(0.25)(x)
+    x = layers.Dropout(0.5)(x)
+    x = layers.Dense(512)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.Dropout(0.5)(x)
     outputs = layers.Dense(num_classes, activation='softmax')(x)
     return inputs, outputs
 

@@ -46,11 +46,10 @@ def diff_fuc(x, alpha, init_val) :
     return tf.math.log(init_val + alpha * x) / (1 + tf.math.log(init_val + alpha * x))
 
 class DNN:
-    def __init__(self, layer_sizes, batch_size=128, initializer='xavier', dropout_rate=0.00, label_smoothing=0.00):
+    def __init__(self, layer_sizes, batch_size=128, initializer='he', dropout_rate=0.00, label_smoothing=0.00, lr=0.85e-5):
         self.layer_sizes = layer_sizes
         self.initializer = initializer
         self.batch_size = batch_size
-        self.lr = 0.0001
         self.weight_szie = len(layer_sizes) - 1
         self.weights = []  # W₁, W₂, ..., Wₙ
         self.biases = []   # b₁, b₂, ..., bₙ
@@ -62,14 +61,18 @@ class DNN:
         self.val_loss = []
         self._initialize_weights()
         self.square = 5
+        self.diff = 0.25
+        self.lr = lr
+        self.epsillon = 1e-7
+        self._lambda = 1e-2
         self.dropout_rate  = dropout_rate  # 드롭아웃 비율
         self.label_smoothing  = label_smoothing
 
-    def _get_initializer(self, fan_in):
+    def _get_initializer(self, fan_in, fan_out):
         if self.initializer == 'he':
             stddev = tf.math.sqrt(2.0 / tf.cast(fan_in, tf.float32))
         elif self.initializer == 'xavier':
-            stddev = tf.math.sqrt(1.0 / tf.cast(fan_in, tf.float32))
+            stddev = tf.math.sqrt(2.0 / tf.cast(fan_in + fan_out, tf.float32))
         else:
             stddev = tf.constant(0.01, dtype=tf.float32)
         return stddev
@@ -78,7 +81,7 @@ class DNN:
         for i in range(len(self.layer_sizes) - 1):
             in_dim = self.layer_sizes[i]
             out_dim = self.layer_sizes[i + 1]
-            stddev = self._get_initializer(in_dim)
+            stddev = self._get_initializer(in_dim, out_dim)
 
             W = tf.Variable(
                 tf.random.normal(shape=(out_dim, in_dim), stddev=stddev),
@@ -182,7 +185,7 @@ class DNN:
     
     @tf.function(jit_compile=True)
     def _Hsolve(self, T, nX, dP, current_batch_size, coef_outerDp, coef_H) :
-        lamb=1e-2
+        lamb = self._lambda
         H = tf.matmul(T, tf.square(nX), transpose_b=True) / current_batch_size
         outer_dP = tf.square(dP)
         newH = coef_outerDp * outer_dP + coef_H * H
@@ -205,6 +208,7 @@ class DNN:
         vW = self.vW
         vb = self.vb
         lr = self.lr
+        epsillon = self.epsillon
 
         last_weight = None
         current_batch_size = tf.cast(tf.shape(X_batch)[1], tf.float32)
@@ -213,9 +217,10 @@ class DNN:
         J = y_pred - y_batch
         WT = tf.transpose(self.weights[weights_size - 1])
         WT_outer = WT[:, None, :] * WT[None, :, :]     # shape: [I, I, S]
-        D = fast_tensordot(WT_outer, y_pred, axes=[[2], [0]])
-        Je = fast_matmul(WT, y_pred) * leaky_relu_derivative(Z_list[weights_size - 2])
-        diff = 0.3
+        deriv_relu_Z = leaky_relu_derivative(Z_list[weights_size - 2])
+        D = fast_tensordot(WT_outer, y_pred, axes=[[2], [0]]) * deriv_relu_Z[:, None, :] * deriv_relu_Z[None, :, :]
+        Je = fast_matmul(WT, y_pred) * leaky_relu_derivative(deriv_relu_Z)
+        diff = self.diff
         ####diff_coef#####
         coef_outerDp = square * (square -  1) * (diff) ** (square - 2)
         coef_H = square * (diff) ** (square - 1)
@@ -247,8 +252,11 @@ class DNN:
             vW_hat = vW[idx] / (1 - beta2 ** timestep)
             vb_hat = vb[idx] / (1 - beta2 ** timestep)
 
-            weights[idx].assign(cur_w - lr * mW_hat / (tf.sqrt(vW_hat) + 1e-7))
-            biases[idx].assign(cur_b - lr * mb_hat / (tf.sqrt(vb_hat) + 1e-7))
+            raw_ratio_w = mW_hat / (tf.sqrt(vW_hat) * coef_H + epsillon)
+            raw_ratio_b = mb_hat / (tf.sqrt(vb_hat) * coef_H + epsillon)
+
+            weights[idx].assign(cur_w - lr * raw_ratio_w)
+            biases[idx].assign(cur_b - lr * raw_ratio_b)
 
     @tf.function(jit_compile=True)
     def _train_step(self, X_batch, y_batch, timestop):

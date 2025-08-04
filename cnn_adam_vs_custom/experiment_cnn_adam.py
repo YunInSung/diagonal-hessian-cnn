@@ -24,11 +24,11 @@ for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
 # ----------------- 하이퍼파라미터 -----------------
-SEEDS           = list(range(10))   # 10회 반복
-EPOCHS          = 40
+SEEDS           = list(range(20))   # 10회 반복
+EPOCHS          = 50
 BATCH_SIZE      = 64
 LEARNING_RATE   = 1e-3
-DROPOUT_RATE    = 0.3
+DROPOUT_RATE    = 0.4
 L2_REG          = 1e-2                     # optional
 
 # ----------------- 데이터셋 목록 -----------------
@@ -49,8 +49,13 @@ def build_base(num_classes):
     x = conv_block(x, 128)
     x = layers.Flatten()(x)
     x = layers.Dense(512)(x)
+    x = layers.BatchNormalization()(x)
     x = layers.Activation('relu')(x)
-    x = layers.Dropout(0.2)(x)
+    x = layers.Dropout(0.5)(x)
+    x = layers.Dense(512)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.Dropout(0.5)(x)
     outputs = layers.Dense(num_classes, activation='softmax')(x)
     return inputs, outputs
 
@@ -78,7 +83,7 @@ def load_data(name):
     return (xt, yt_ohe), (xv, yv_ohe), num_classes
 
 # ----------------- 1회 학습 -----------------
-def train_one(x_train, y_train, x_val, y_val, num_classes, seed, model_class='baseline'):
+def train_one(x_train, y_train, x_val, y_val, num_classes, seed, model_class='baseline', lr=0.7e-5):
     # 재현성 설정
     os.environ['PYTHONHASHSEED'] = str(seed)
     random.seed(seed); np.random.seed(seed)
@@ -89,7 +94,7 @@ def train_one(x_train, y_train, x_val, y_val, num_classes, seed, model_class='ba
     if model_class == 'baseline':
         net = Model(inputs, outputs)
     else:  # 'custom'
-        net = MyModel(inputs=inputs, outputs=outputs)  # 내부에서 opt 관리
+        net = MyModel(inputs=inputs, outputs=outputs, learning_rate=lr)  # 내부에서 opt 관리
 
     net.compile(optimizer=opt,
                 loss='categorical_crossentropy',
@@ -118,11 +123,17 @@ for ds in DATASETS:
     print(f"\n>> Dataset: {ds}")
     (x_train, y_train), (x_val, y_val), num_classes = load_data(ds)
 
+    lr = 0
+    if ds == 'cifar10':
+        lr = 0.7e-5
+    elif ds == 'cifar100' :
+        lr = 0.65e-5
+
     metrics_baseline = []
     metrics_custom = []
     for seed in SEEDS:
         metrics_baseline.append(train_one(x_train, y_train, x_val, y_val, num_classes, seed, 'baseline'))
-        metrics_custom.append(train_one(x_train, y_train, x_val, y_val, num_classes, seed, 'custom'))
+        metrics_custom.append(train_one(x_train, y_train, x_val, y_val, num_classes, seed, 'custom', lr=lr))
         # 메모리 비우기
         tf.keras.backend.clear_session()
         gc.collect()

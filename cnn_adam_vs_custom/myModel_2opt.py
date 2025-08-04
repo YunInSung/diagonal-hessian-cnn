@@ -4,21 +4,22 @@ from tensorflow.keras import Model
 class MyModel(Model):
     def __init__(self, inputs, outputs,
                  beta1=0.9, beta2=0.999,
-                 learning_rate=1e-4, epsilon=1e-7,
+                 learning_rate=0.7e-5, epsilon=1e-7,
                  **kwargs):
         super().__init__(inputs=inputs, outputs=outputs, **kwargs)
         # 하이퍼파라미터
         self.beta1 = beta1
         self.beta2 = beta2
-        self.lr    = learning_rate
         self.epsilon = epsilon
+        self._lambda = 1e-2
 
         # velocities, moments 초기화 플래그
         self._slots_initialized = False
 
         # (기존 diff/square 계수 계산)
-        self.diff = 0.3
-        self.square = 5
+        self.diff    = 0.25
+        self.square  = 5
+        self.lr      = learning_rate
         self.coef_H = self.square * (self.diff) ** (self.square - 1)
         self.coef_outerDp = self.square * (self.square - 1) * (self.diff) ** (self.square - 2)
 
@@ -89,7 +90,7 @@ class MyModel(Model):
                 h = tf.convert_to_tensor(h)
             newH = self.coef_outerDp * tf.square(g) + self.coef_H * h
             newH = tf.abs(newH)
-            newH = newH + tf.fill(newH.shape, 0.01)
+            newH = newH + tf.fill(newH.shape, self._lambda)
             d2W = g * self.coef_H / newH
 
             # 1차 모멘텀 업데이트
@@ -103,7 +104,7 @@ class MyModel(Model):
             v_hat = v_i / (1 - tf.pow(self.beta2, step))
 
             # parameter update
-            var.assign_sub(lr * m_hat / (tf.sqrt(v_hat) + self.epsilon))
+            var.assign_sub(lr * m_hat / (tf.sqrt(v_hat) * self.coef_H + self.epsilon))
 
         # 5) iterations 증가
         #    apply_gradients를 쓰지 않으므로 직접 증가시켜야 합니다.
