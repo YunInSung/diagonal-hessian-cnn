@@ -46,7 +46,7 @@ def diff_fuc(x, alpha, init_val) :
     return tf.math.log(init_val + alpha * x) / (1 + tf.math.log(init_val + alpha * x))
 
 class DNN:
-    def __init__(self, layer_sizes, batch_size=128, initializer='he', dropout_rate=0.00, label_smoothing=0.00, lr=0.9e-5):
+    def __init__(self, layer_sizes, batch_size=128, initializer='he', dropout_rate=0.0, label_smoothing=0.0, lr=1e-6):
         self.layer_sizes = layer_sizes
         self.initializer = initializer
         self.batch_size = batch_size
@@ -61,10 +61,10 @@ class DNN:
         self.val_loss = []
         self._initialize_weights()
         self.square = 5
-        self.diff = 0.25
+        self.diff = 0.095
         self.lr = lr
-        self.epsillon = 1e-7
-        self._lambda = 1e-2
+        self.epsillon = 1e-6
+        self._lambda = 1e-3
         self.dropout_rate  = dropout_rate  # 드롭아웃 비율
         self.label_smoothing  = label_smoothing
 
@@ -185,15 +185,18 @@ class DNN:
     
     @tf.function(jit_compile=True)
     def _Hsolve(self, T, nX, dP, current_batch_size, coef_outerDp, coef_H) :
-        lamb = self._lambda
         H = tf.matmul(T, tf.square(nX), transpose_b=True) / current_batch_size
         outer_dP = tf.square(dP)
         newH = coef_outerDp * outer_dP + coef_H * H
         ##################################################
-        newH = tf.abs(newH)
+        min = tf.reduce_min(newH)
+        # lamb = tf.abs(min) + self._lambda
+        lamb = tf.where(min < 0, -min, 0.0) + self._lambda
+        ##################################################
+        retH =  tf.identity(newH)
         newH = newH + tf.fill(newH.shape, lamb)
         L = dP * coef_H / newH
-        return L
+        return L, retH
     
     @tf.function(jit_compile=True)
     def _hessian_block_step(self, X_batch, y_batch, timestep) :
@@ -207,7 +210,7 @@ class DNN:
         mb = self.mb
         vW = self.vW
         vb = self.vb
-        lr = self.lr
+        # lr = self.lr
         epsillon = self.epsillon
 
         last_weight = None
@@ -219,8 +222,13 @@ class DNN:
         WT_outer = WT[:, None, :] * WT[None, :, :]     # shape: [I, I, S]
         deriv_relu_Z = leaky_relu_derivative(Z_list[weights_size - 2])
         D = fast_tensordot(WT_outer, y_pred, axes=[[2], [0]]) * deriv_relu_Z[:, None, :] * deriv_relu_Z[None, :, :]
-        Je = fast_matmul(WT, y_pred) * leaky_relu_derivative(deriv_relu_Z)
+        Je = fast_matmul(WT, y_pred) * deriv_relu_Z
+        loss = -tf.reduce_mean(tf.reduce_sum(y_batch * tf.math.log(y_pred + 1e-8), axis=0))
         diff = self.diff
+        if loss > 1 :
+            lr = self.lr * 5
+        else :
+            lr = self.lr
         ####diff_coef#####
         coef_outerDp = square * (square -  1) * (diff) ** (square - 2)
         coef_H = square * (diff) ** (square - 1)
@@ -236,9 +244,11 @@ class DNN:
             db = tf.reduce_sum(J, axis=1, keepdims=True) / current_batch_size
             dP = tf.concat([dW, db], axis=1)
             T, J, D, Je, last_weight = _tensorOfH(idx, weights_size, J, D, Je, last_weight, cur_w, y_pred, Z_list)
-            L = _Hsolve(T, nX, dP, current_batch_size, coef_outerDp, coef_H)
+            L, retH = _Hsolve(T, nX, dP, current_batch_size, coef_outerDp, coef_H)
             d2W = L[:, :n]
             d2b = L[:, n:n+1]
+            adp2W = retH[:, :n]
+            adp2b = retH[:, n:n+1]
             ########################
             beta1 = 0.9
             beta2 = 0.999
@@ -247,13 +257,13 @@ class DNN:
             mW_hat = mW[idx] / (1 - beta1 ** timestep)
             mb_hat = mb[idx] / (1 - beta1 ** timestep)
 
-            vW[idx].assign((beta2) * vW[idx] + (1 - beta2) * tf.square(dW))
-            vb[idx].assign((beta2) * vb[idx] + (1 - beta2) * tf.square(db))
+            vW[idx].assign((beta2) * vW[idx] + (1 - beta2) * tf.square(adp2W))
+            vb[idx].assign((beta2) * vb[idx] + (1 - beta2) * tf.square(adp2b))
             vW_hat = vW[idx] / (1 - beta2 ** timestep)
             vb_hat = vb[idx] / (1 - beta2 ** timestep)
 
-            raw_ratio_w = mW_hat / (tf.sqrt(vW_hat) * coef_H + epsillon)
-            raw_ratio_b = mb_hat / (tf.sqrt(vb_hat) * coef_H + epsillon)
+            raw_ratio_w = mW_hat / (tf.sqrt(vW_hat) + epsillon)
+            raw_ratio_b = mb_hat / (tf.sqrt(vb_hat) + epsillon)
 
             weights[idx].assign(cur_w - lr * raw_ratio_w)
             biases[idx].assign(cur_b - lr * raw_ratio_b)
