@@ -4,16 +4,16 @@
 *This repository contains preliminary results for a diagonal-Hessian RMSProp optimizer. Full benchmarking and ablation studies are forthcoming.*
 
 ## Abstract
-This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 5**, **lr = 7.0×10⁻⁶ (CIFAR-10), 6.5×10⁻⁶ (CIFAR-100)**). All results are averaged over **20 deterministic seeds (0—19)** with **50 epochs** per run and evaluated via paired two-tailed *t*-tests.  
+This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 9**, **lr = 1.0×10^-7). All results are averaged over **20 deterministic seeds (0—19)** with **50 epochs (CIFAR-10), 60 epdochs (CIFAR-100)** per run and evaluated via paired two-tailed *t*-tests.  
 
-### Key Results (Custom vs Adam, 50 epochs)
+### Key Results (Custom vs Adam)
 
-#### CIFAR-10
+#### CIFAR-10 (50 epochs)
 - **val_loss**: −5.61 % (*p* = 0.013)  
 - **val_acc**: +0.72 pp (*p* = 0.033)  
 - **macro-F1**: +0.62 pp (*p* = 0.050)  
 
-#### CIFAR-100
+#### CIFAR-100 (60 epochs)
 - **val_loss**: −2.98 % (*p* = 0.009)  
 - **val_acc**: +1.51 pp (*p* = 0.020)  
 - **macro-F1**: +1.36 pp (*p* = 0.030)  
@@ -156,45 +156,45 @@ The two `myModel_2opt.py` files are identical apart from their default hyper-par
 
 | Metric | Adam Mean ± SD | Custom Mean ± SD | Δ (Custom–Adam) | % Change | *t* | *p*-value | Sig. |
 |--------|----------------|------------------|-----------------|----------|-----|-----------|------|
-| **val_loss** | 0.4743 ± 0.0409 | 0.4477 ± 0.0256 | −0.0266 | −5.61 % | −2.734 | 0.01318 | * |
-| **val_acc**  | 0.8542 ± 0.0112 | 0.8604 ± 0.0067 | +0.0062 | +0.72 % | +2.301 | 0.03290 | * |
-| **f1**       | 0.8540 ± 0.0103 | 0.8593 ± 0.0072 | +0.0053 | +0.62 % | +2.096 | 0.04973 | * |
-| **train_time** | 264.7298 ± 2.8424 s | 332.9594 ± 4.0486 s | +68.2296 s | +25.77 % | +94.881 | 0.00000 | ** |
+| **val_loss** | 0.4332 ± 0.0294 | 0.4137 ± 0.0147 | −0.0195 | −4.50 % | -2.569 | 0.01878 | * |
+| **val_acc** | 0.8622 ± 0.0072 | 0.8681 ± 0.0042 | +0.0059 | +0.69 % | +3.091 | 0.00601 | ** |
+| **f1** | 0.8614 ± 0.0078 | 0.8669 ± 0.0048 | +0.0055 | +0.64 % | +2.625 | 0.01668 | * |
+| **train_time** | 248.8213 ± 2.2744 s | 311.3269 ± 4.2343 s | +62.5056 s | +25.12 % | +76.353 | 0.00000 | *** |
 
 **Key points**
 
-* Custom lowers loss (**−5.6 %**, *p* = 0.013) and raises accuracy/F1 by **+0.62–0.72 pp** (*p* ≈ 0.033/0.050).  
-* Training-time overhead **+25.8 %**.
-
+* Custom lowers loss (**−4.5 %**), *p* = 0.01878.
+* Accuracy improves by **+0.59 pp**, *p* = 0.00601.
+* F1 improves by **+0.55 pp**, *p* = 0.01668.
+* Training-time overhead **+25.12 %**.
 ---
 
 #### 2.2 CIFAR-100
 
 | Metric | Adam Mean ± SD | Custom Mean ± SD | Δ (Custom–Adam) | % Change | *t* | *p*-value | Sig. |
 |--------|----------------|------------------|-----------------|----------|-----|-----------|------|
-| **val_loss** | 1.5666 ± 0.0533 | 1.5198 ± 0.0356 | −0.0467 | −2.98 % | −2.894 | 0.00931 | * |
-| **val_acc**  | 0.5700 ± 0.0123 | 0.5786 ± 0.0067 | +0.0086 | +1.51 % | +2.546 | 0.01972 | * |
-| **f1**       | 0.5671 ± 0.0121 | 0.5747 ± 0.0068 | +0.0077 | +1.36 % | +2.352 | 0.02960 | * |
-| **train_time** | 272.2826 ± 4.3741 s | 341.7940 ± 4.9861 s | +69.5114 s | +25.53 % | +93.681 | 0.00000 | ** |
+| **val_loss** | 1.4717 ± 0.0221 | 1.4472 ± 0.0321 | −0.0245 | −1.67 % | -2.617 | 0.01695 | * |
+| **val_acc** | 0.5910 ± 0.0045 | 0.5973 ± 0.0061 | +0.0063 | +1.07 % | +3.624 | 0.00181 | * |
+| **f1** | 0.5872 ± 0.0042 | 0.5934 ± 0.0061 | +0.0062 | +1.06 % | +3.870 | 0.00103 | * |
+| **train_time** | 315.6871 ± 7.1132 s | 381.5336 ± 9.6949 s | +65.8465 s | +20.86 % | +65.231 | 0.00000 | ** |
 
 **Key points**
 
-* Custom **reduces loss (−3.0 %, *p* = 0.009)** and **improves accuracy/F1 by +1.36–1.51 pp** (*p* < 0.03).  
-* Training-time penalty is similar to CIFAR-10 (**~+25.5 %**).
+* Custom reduces loss (**-1.67 %**), *p* = 0.01695.
+* Accuracy improves by **+0.63 pp**, *p* = 0.00181.
+* F1 improves by **+0.62 pp**, *p* = 0.00103.
+* Training-time overhead **+20.86 %**.
 
 ---
 
 #### Significance Flags
-* `*` *p* < 0.05  `**` *p* < 0.001  
-
----
+* `*` *p* < 0.05  `**` *p* < 0.001
 
 ### 3. Interpretation
 
 | Aspect | Summary |
 |--------|---------|
-| **Performance** | *CIFAR-10*: statistically significant gains across loss/acc/F1.  *CIFAR-100*: consistent, significant improvements across all metrics. |
-| **Stability** | Custom shows slightly lower run-to-run variance (smaller SDs). |
-| **Compute Cost** | Diagonal-Hessian updates add ≈25.8% (CIFAR-10) and ≈25.5% (CIFAR-100) training time. |
+| **Performance** | **CIFAR-10:** significant gains in loss (−4.5%, *p* = 0.0188), acc (+0.59 pp, *p* = 0.0060), and F1 (+0.55 pp, *p* = 0.0167). **CIFAR-100:** consistent, significant improvements across loss (−1.67%, *p* = 0.0170), acc (+0.63 pp, *p* = 0.0018), and F1 (+0.62 pp, *p* = 0.0010). |
+| **Stability** | **CIFAR-10:** Custom shows slightly lower run-to-run variance (smaller SDs). **CIFAR-100:** SDs are comparable or slightly higher for Custom. |
+| **Compute Cost** | Diagonal-Hessian updates add ≈**+25.1%** (CIFAR-10) and ≈**+20.9%** (CIFAR-100) training time. |
 
----

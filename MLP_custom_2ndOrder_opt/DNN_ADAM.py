@@ -60,10 +60,10 @@ class DNN:
         self.loss = []
         self.val_loss = []
         self._initialize_weights()
-        self.square = 5
-        self.diff = 0.095
+        self.square = 9
+        self.diff = 0.25
         self.lr = lr
-        self.epsillon = 1e-6
+        self.epsillon = 1e-7
         self._lambda = 1e-3
         self.dropout_rate  = dropout_rate  # 드롭아웃 비율
         self.label_smoothing  = label_smoothing
@@ -188,16 +188,19 @@ class DNN:
         H = tf.matmul(T, tf.square(nX), transpose_b=True) / current_batch_size
         outer_dP = tf.square(dP)
         newH = coef_outerDp * outer_dP + coef_H * H
+        # 1) 비정상값 제거
+        newH = tf.where(tf.math.is_finite(newH), newH, tf.zeros_like(newH))
         ##################################################
-        min = tf.reduce_min(newH)
-        # lamb = tf.abs(min) + self._lambda
-        lamb = tf.where(min < 0, -min, 0.0) + self._lambda
+        minv = tf.reduce_min(newH)
+        minv = tf.where(tf.math.is_finite(minv), minv, tf.constant(0.0, newH.dtype))
+        lamb = tf.where(minv < 0, -minv, 0.0) + self._lambda
         ##################################################
         retH =  tf.identity(newH)
         newH = newH + tf.fill(newH.shape, lamb)
         L = dP * coef_H / newH
         return L, retH
     
+
     @tf.function(jit_compile=True)
     def _hessian_block_step(self, X_batch, y_batch, timestep) :
         square = self.square
@@ -210,7 +213,7 @@ class DNN:
         mb = self.mb
         vW = self.vW
         vb = self.vb
-        # lr = self.lr
+        lr = self.lr
         epsillon = self.epsillon
 
         last_weight = None
@@ -223,12 +226,7 @@ class DNN:
         deriv_relu_Z = leaky_relu_derivative(Z_list[weights_size - 2])
         D = fast_tensordot(WT_outer, y_pred, axes=[[2], [0]]) * deriv_relu_Z[:, None, :] * deriv_relu_Z[None, :, :]
         Je = fast_matmul(WT, y_pred) * deriv_relu_Z
-        loss = -tf.reduce_mean(tf.reduce_sum(y_batch * tf.math.log(y_pred + 1e-8), axis=0))
         diff = self.diff
-        if loss > 1 :
-            lr = self.lr * 5
-        else :
-            lr = self.lr
         ####diff_coef#####
         coef_outerDp = square * (square -  1) * (diff) ** (square - 2)
         coef_H = square * (diff) ** (square - 1)
@@ -293,23 +291,31 @@ class DNN:
                 val_loss_list.append(val_loss)
 
                 tf.print(f'custom {epoch+1} epoch : training loss : {loss} - val loss : {val_loss}')
+                # weights, biases = self.ret_weights_biases()
+                # # 2) 각 요소의 L2 노름 계산
+                # weight_norms = [tf.norm(W).numpy() for W in weights]
+                # bias_norms   = [tf.norm(b).numpy() for b in biases]
+                # for i, (wn, bn) in enumerate(zip(weight_norms, bias_norms), 1):
+                #     print(f"Layer {i:2d}: ‖W‖₂ = {wn:.4f}, ‖b‖₂ = {bn:.4f}")
+
     
     def ret_weights_biases(self) :
         return self.weights, self.biases
-
+    
     def compute_loss(self, x, y_onehot):
-        X = x  # shape: (batch_size, input_dim)
-
+        X = x  # (batch, input_dim)
         for idx in range(len(self.weights)):
-            W = tf.transpose(self.weights[idx])  # transpose to (in_dim, out_dim)
-            Z = tf.matmul(X, W) + tf.reshape(self.biases[idx], (1, -1))  # shape: (batch_size, out_dim)
+            W = tf.transpose(self.weights[idx])                 # (in_dim, out_dim)
+            Z = tf.matmul(X, W) + tf.reshape(self.biases[idx], (1, -1))  # (batch, out_dim)
             if idx < len(self.weights) - 1:
                 X = tf.nn.leaky_relu(Z, alpha=0.01)
             else:
                 logits = Z
 
-        y_pred = tf.nn.softmax(logits, axis=1)
-        loss = tf.reduce_mean(tf.reduce_sum(-y_onehot * tf.math.log(y_pred + 1e-8), axis=1))
+        # ★ 로짓 기반, 내부에 log-sum-exp 안정화 포함
+        logits = tf.cast(logits, tf.float32)
+        y_onehot = tf.cast(y_onehot, tf.float32)
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_onehot, logits=logits))
         return loss
 
     
