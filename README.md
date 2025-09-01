@@ -9,14 +9,15 @@ This repository provides a TensorFlow implementation of a **diagonal-Hessian, RM
 ### Key Results (Custom vs Adam)
 
 #### CIFAR-10 (50 epochs)
-- **val_loss**: −5.61 % (*p* = 0.013)  
-- **val_acc**: +0.72 pp (*p* = 0.033)  
-- **macro-F1**: +0.62 pp (*p* = 0.050)  
+- **val_loss**: −4.50 % (*p* = 0.01878)  
+- **val_acc**: +0.59 pp (*p* = 0.00601)  
+- **macro-F1**: +0.55 pp (*p* = 0.01668)  
 
 #### CIFAR-100 (60 epochs)
-- **val_loss**: −2.98 % (*p* = 0.009)  
-- **val_acc**: +1.51 pp (*p* = 0.020)  
-- **macro-F1**: +1.36 pp (*p* = 0.030)  
+- **val_loss**: −1.67 % (*p* = 0.01695)  
+- **val_acc**: +0.63 pp (*p* = 0.00181)  
+- **macro-F1**: +0.62 pp (*p* = 0.00103)  
+
 
 ### Stability
 Beyond mean performance, the custom optimizer exhibits **smaller run-to-run variability** (lower standard deviations) across all metrics, indicating improved reproducibility.
