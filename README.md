@@ -4,7 +4,7 @@
 *This repository contains preliminary results for a diagonal-Hessian RMSProp optimizer. Full benchmarking and ablation studies are forthcoming.*
 
 ## Abstract
-This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 9**, **lr = 1.0×10^-7). All results are averaged over **20 deterministic seeds (0—19)** with **50 epochs (CIFAR-10), 60 epdochs (CIFAR-100)** per run and evaluated via paired two-tailed *t*-tests.  
+This repository provides a TensorFlow implementation of a **diagonal-Hessian, RMSProp-style optimizer**, wrapped in a `MyModel` subclass that works for both **MLP** and **CNN** architectures. The CNN backbone is a compact Conv-BN-ReLU stack (3 blocks) with dropout and a 512-unit head. The optimizer uses variance scaling with bias-corrected momentum and fixed hyperparameters (**diff = 0.25**, **square = 9**, **lr = 1.0×10^-6). All results are averaged over **20 deterministic seeds (0—19)** with **50 epochs (CIFAR-10), 60 epdochs (CIFAR-100)** per run and evaluated via paired two-tailed *t*-tests.  
 
 ### Key Results (Custom vs Adam)
 
@@ -79,8 +79,8 @@ All changes applied uniformly to both variants:
 - **Applied standard RMSProp gradient scaling**   
 - Hyperparameters adjusted to:
   - `diff = 0.25`
-  - `square = 5`
-  - **Learning rate** fixed at **0.7×10⁻⁵** for CIFAR-10 and **0.65×10⁻⁵** for CIFAR-100
+  - `square = 9`
+  - **Learning rate** fixed at **1.0×10^-6**
 - **Performance**: Even on a simple MLP architecture, this configuration consistently outperforms the original optimizer across training loss and convergence speed.
 
 ## CNN variant (`MyModel`)
